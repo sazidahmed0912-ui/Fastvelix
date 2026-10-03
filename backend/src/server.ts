@@ -9,7 +9,7 @@ import { config, isAllowedOrigin } from './config';
 import { connectDB } from './config/db';
 import { initSocket } from './config/socket';
 import { errorHandler, notFound } from './middleware/errorHandler';
-import { apiLimiter } from './middleware/rateLimit';
+import { apiLimiter, readLimiter } from './middleware/rateLimit';
 import { AppError } from './utils/AppError';
 
 import path from 'path';
@@ -33,6 +33,14 @@ import referralRoutes from './routes/referrals';
 
 const app = express();
 const server = http.createServer(app);
+
+// Render terminates TLS and forwards the request, so without this every
+// req.ip resolved to Render's proxy rather than the shopper's. All visitors
+// then shared a single rate-limit bucket and the store returned 429 for
+// everyone within minutes of going live. Trusting exactly one hop reads the
+// client address from X-Forwarded-For, and also makes req.protocol report https
+// so the SameSite=None session cookie is treated as secure.
+app.set('trust proxy', 1);
 
 // Serve static uploaded cake photos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -81,7 +89,9 @@ app.use(cookieParser(config.cookie.secret));
 app.use(mongoSanitize()); // Prevent NoSQL injection
 
 // ─── Rate Limiting ──────────────────────────────────────────────────────────
-app.use('/api', apiLimiter);
+// Mounted in order: readLimiter counts GET/HEAD/OPTIONS, apiLimiter skips them,
+// so each request is only charged to the budget that suits it.
+app.use('/api', readLimiter, apiLimiter);
 
 // ─── Health Check & Root Route ────────────────────────────────────────────────
 app.get('/', (_req, res) => {

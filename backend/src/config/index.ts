@@ -72,7 +72,12 @@ export const config = {
 
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
-    max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
+    // Writes: order placement, cart changes, profile edits. Kept tight so a
+    // single client cannot hammer state-changing endpoints.
+    max: parseInt(process.env.RATE_LIMIT_MAX || '120', 10),
+    // Reads: product browsing alone issues several GETs per page view, so this
+    // budget is deliberately far larger than the write budget. See readLimiter.
+    readMax: parseInt(process.env.RATE_LIMIT_READ_MAX || '900', 10),
     authMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '10', 10),
   },
 
