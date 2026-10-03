@@ -219,4 +219,21 @@ if (isProduction) {
         '\n\nSet these in the Render dashboard under Environment.'
     );
   }
+
+  // Not fatal, because Cash on Delivery still works without a gateway. Online
+  // payment now fails closed at request time, so this only makes the cause
+  // visible in the deploy logs instead of surfacing it to a customer at the
+  // payment step.
+  const missingRazorpay = [
+    !config.razorpay.keyId && 'RAZORPAY_KEY_ID',
+    !config.razorpay.keySecret && 'RAZORPAY_KEY_SECRET',
+    !config.razorpay.webhookSecret && 'RAZORPAY_WEBHOOK_SECRET',
+  ].filter(Boolean);
+
+  if (missingRazorpay.length > 0) {
+    console.warn(
+      `[config] Razorpay is not fully configured, so online payment will be refused ` +
+      `and only Cash on Delivery will work. Missing: ${missingRazorpay.join(', ')}.`
+    );
+  }
 }

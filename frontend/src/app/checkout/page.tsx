@@ -22,6 +22,20 @@ interface Address {
   label: string;
 }
 
+/**
+ * The Razorpay script is loaded with lazyOnload, so a fast click on the payment
+ * button can land before it has executed. Give it a moment to appear instead of
+ * treating that as "payments unavailable".
+ */
+const waitForRazorpay = async (timeoutMs = 6000): Promise<boolean> => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (typeof (window as any).Razorpay === 'function') return true;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  return typeof (window as any).Razorpay === 'function';
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, fetchCart, clearCart } = useStore();
@@ -155,11 +169,13 @@ export default function CheckoutPage() {
         },
       };
 
-      if (typeof (window as any).Razorpay === 'function') {
+      if (typeof (window as any).Razorpay === 'function' || (await waitForRazorpay())) {
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-      } else {
-        // Fallback mock payment in development / when Razorpay script is unavailable
+      } else if (process.env.NODE_ENV === 'development') {
+        // Fallback mock payment, development only. This must never run in
+        // production: it confirms an order as paid without any money moving,
+        // and it did so whenever the Razorpay script was merely slow to load.
         const verifyRes = await api.post<{ success: boolean; orderId: string }>(
           '/checkout/verify-payment',
           {
@@ -176,6 +192,10 @@ export default function CheckoutPage() {
         } else {
           throw new Error('Payment verification failed.');
         }
+      } else {
+        throw new Error(
+          'The payment window could not be loaded. Please check your connection and try again, or choose Cash on Delivery.'
+        );
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Checkout failed. Please try again.');

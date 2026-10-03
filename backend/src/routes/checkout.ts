@@ -393,6 +393,17 @@ router.post('/create-payment', authenticate, async (req: AuthRequest, res, next)
             userId: req.user!._id,
           });
           razorpayOrderId = rpOrder.id;
+        } else if (config.env !== 'development') {
+          // Refuse rather than fall back. The mock order id below makes
+          // /verify-payment skip signature checking altogether, so producing it
+          // in production would let anyone place an order marked PAID without
+          // paying. The transaction is still open, so throwing here discards the
+          // order that was just created.
+          throw new AppError(
+            'Online payment is unavailable because Razorpay is not configured on the server. Please choose Cash on Delivery.',
+            503,
+            'PAYMENT_NOT_CONFIGURED'
+          );
         } else {
           // Dev mode fallback mock order ID when keys are not configured
           razorpayOrderId = `order_mock_${Date.now()}`;
@@ -416,6 +427,8 @@ router.post('/create-payment', authenticate, async (req: AuthRequest, res, next)
         success: true,
         order: { _id: order._id, orderNumber: order.orderNumber, grandTotal },
         razorpayOrderId,
+        // Never hand the client a placeholder in production: the checkout page
+        // would pass it to Razorpay and the payment would fail confusingly.
         razorpayKeyId: config.razorpay.keyId || 'rzp_test_mockkey',
       };
     });
@@ -445,7 +458,14 @@ router.post('/verify-payment', authenticate, async (req: AuthRequest, res, next)
   try {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature, orderId } = req.body;
 
-    const isMock = razorpayOrderId?.startsWith('order_mock_') || !config.razorpay.keySecret;
+    // The mock path is for local development only. It was previously also taken
+    // whenever RAZORPAY_KEY_SECRET was absent, which meant a server missing one
+    // env var accepted any signature at all and marked the order PAID and
+    // CONFIRMED. A missing secret now fails closed.
+    const isMock =
+      config.env === 'development' &&
+      (razorpayOrderId?.startsWith('order_mock_') || !config.razorpay.keySecret);
+
     if (!isMock) {
       const isValid = verifyPaymentSignature(razorpayOrderId, razorpayPaymentId, razorpaySignature);
       if (!isValid) {
