@@ -68,72 +68,21 @@ export default function HomePage() {
         <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4">
           {isFashion ? (
             /* FASHION BANNER — Editorial B/W & Minimal */
-            <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-lg overflow-hidden bg-stone-950 flex items-center shadow-sm">
+            <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-lg overflow-hidden bg-stone-950 shadow-sm">
               <img
                 src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1400"
                 alt="Fashion Banner"
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-45"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/70 to-transparent" />
-              
-              <div className="relative z-10 px-6 sm:px-10 lg:px-12 text-white max-w-xl space-y-2 sm:space-y-3">
-                <span className="inline-flex items-center gap-1 bg-emerald-800 text-white text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-widest rounded-none">
-                  Editorial Collection
-                </span>
-                <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight uppercase leading-tight text-white">
-                  Elevate Your Everyday
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-300 font-medium line-clamp-2">
-                  Discover modern fashion made for your style.
-                </p>
-                <div className="pt-1">
-                  <Link
-                    href="/fashion"
-                    className="inline-flex items-center gap-1.5 bg-white hover:bg-neutral-100 text-stone-950 font-extrabold text-[10px] sm:text-xs uppercase tracking-widest px-4 sm:px-6 py-2 transition-colors rounded-none"
-                  >
-                    <span>Shop Fashion</span>
-                    <ArrowRight size={12} />
-                  </Link>
-                </div>
-              </div>
             </div>
           ) : (
             /* CAKES & BAKES BANNER — Studio Bakery & Warm Atmosphere */
-            <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-xl overflow-hidden bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 flex items-center shadow-sm">
+            <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-xl overflow-hidden bg-amber-950 shadow-sm">
               <img
                 src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1400"
                 alt="Cakes & Bakes Banner"
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-50"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-950/90 via-stone-900/80 to-transparent" />
-              
-              <div className="relative z-10 px-6 sm:px-10 lg:px-12 text-white max-w-xl space-y-2 sm:space-y-3">
-                <span className="inline-flex items-center gap-1 bg-amber-400 text-stone-950 text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-widest rounded-full">
-                  <Sparkles size={11} /> Artisanal Cake Studio
-                </span>
-                <h1 className="text-xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-white leading-tight">
-                  Made for Moments <br className="hidden sm:inline" />
-                  <span className="text-amber-200 italic font-normal">Worth Celebrating</span>
-                </h1>
-                <p className="text-xs sm:text-sm text-stone-200 font-medium line-clamp-2">
-                  Custom cakes, fresh bakes and beautiful treats for every occasion.
-                </p>
-                <div className="pt-1 flex items-center gap-3">
-                  <Link
-                    href="/cakes-and-bakes/cakes"
-                    className="inline-flex items-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest px-4 sm:px-6 py-2 transition-colors rounded-full shadow-sm"
-                  >
-                    <span>Explore Cakes & Bakes</span>
-                    <ArrowRight size={12} />
-                  </Link>
-                  <Link
-                    href="/cakes-and-bakes/custom-cake"
-                    className="inline-flex items-center gap-1 text-amber-200 hover:text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider underline"
-                  >
-                    Custom Cake Studio
-                  </Link>
-                </div>
-              </div>
             </div>
           )}
         </section>
@@ -141,7 +90,7 @@ export default function HomePage() {
         {/* ─── 2. SHOP BY CATEGORY (circle icons, copied from Fzokart) ─── */}
         <ShopByCategory
           categories={isFashion ? fashionCategories : bakeryCategories}
-          title="Shop by Categories"
+          title={isFashion ? 'Shop by Categories' : 'Bakery Collection'}
         />
 
         {/* ─── 3. CUSTOM CAKE SPOTLIGHT (CAKES & BAKES ONLY) ─── */}

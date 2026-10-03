@@ -2,19 +2,20 @@
 
 /**
  * ══════════════════════════════════════════════════════════════
- * ⚡ FASTVELIX — SHOP BY CATEGORY (circle icon row)
- * Design copied 1:1 from the Fzokart reference project
+ * ⚡ FASTVELIX — SHOP BY CATEGORY (square icon row)
+ * Layout adapted from the Fzokart reference project
  * (frontend-next/app/_pages/HomePage.tsx → CategoryIconItem +
  *  MobileCategoryCarousel).
  *
- * Behaviour copied exactly:
+ * Behaviour:
  *  • Centred uppercase heading with responsive sizing.
- *  • Desktop → single justified non-wrapping row of circular icons.
+ *  • Desktop → single justified non-wrapping row of square icons.
  *  • Mobile → horizontal snap carousel, exactly 4 icons per page.
- *  • Circular white avatar with border + hover shadow lift.
+ *  • Square white tile with border + hover shadow lift.
+ *  • Image fills the tile edge to edge (object-cover, no padding).
  *  • White shimmer shown ONLY while the image is loading.
  *  • Letter-avatar fallback if the image 404s.
- *  • Label truncates and stays on one line.
+ *  • Label clamps to 2 lines and sits directly under the tile.
  * ══════════════════════════════════════════════════════════════
  */
 
@@ -79,7 +80,7 @@ const CategoryAvatar: React.FC<{ category: ShopCategory }> = ({ category }) => {
       {/* White shimmer shown ONLY while loading */}
       {!loaded && !imageError && (
         <div className="absolute inset-0 w-full h-full bg-white z-10 pointer-events-none">
-          <ShimmerBox className="w-full h-full rounded-full" />
+          <ShimmerBox className="w-full h-full rounded-md" />
         </div>
       )}
 
@@ -95,7 +96,7 @@ const CategoryAvatar: React.FC<{ category: ShopCategory }> = ({ category }) => {
             setImageLoaded(true);
           }}
           className={clsx(
-            'w-full h-full p-1.5 object-contain transition-opacity duration-200',
+            'w-full h-full object-cover transition-opacity duration-200',
             loaded ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -110,7 +111,7 @@ const CategoryAvatar: React.FC<{ category: ShopCategory }> = ({ category }) => {
 
 const CategoryIconItem: React.FC<CategoryItemProps> = ({ category, size = 'mobile' }) => {
   const isDesktop = size === 'desktop';
-  const containerSize = isDesktop ? 'w-16 h-16 md:w-20 md:h-20' : 'w-14 h-14';
+  const containerSize = isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-12 h-12';
 
   return (
     <Link
@@ -121,15 +122,15 @@ const CategoryIconItem: React.FC<CategoryItemProps> = ({ category, size = 'mobil
         className={clsx(
           'relative',
           containerSize,
-          'mb-1.5 md:mb-2 rounded-full border border-gray-200/80 bg-white shadow-2xs group-hover:shadow-md transition-all flex items-center justify-center overflow-hidden shrink-0'
+          'mb-1 md:mb-1.5 rounded-md border border-gray-200/80 bg-white shadow-2xs group-hover:shadow-md transition-all flex items-center justify-center overflow-hidden shrink-0'
         )}
       >
         <CategoryAvatar key={category.image} category={category} />
       </div>
       <span
         className={clsx(
-          'font-medium text-gray-700 leading-tight text-center truncate max-w-full',
-          isDesktop ? 'text-xs md:text-sm' : 'text-[11px]'
+          'font-medium text-gray-700 leading-tight text-center w-full line-clamp-2',
+          isDesktop ? 'text-[10px] md:text-[11px]' : 'text-[9px]'
         )}
       >
         {category.name}
