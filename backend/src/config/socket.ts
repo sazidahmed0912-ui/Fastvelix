@@ -2,7 +2,7 @@ import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import os from 'os';
-import { config } from './index';
+import { config, isAllowedOrigin } from './index';
 
 export interface AuthenticatedSocket extends Socket {
   data: {
@@ -41,12 +41,11 @@ export const broadcastLog = (
 export const initSocket = (httpServer: HttpServer): Server => {
   io = new Server(httpServer, {
     cors: {
+      // Same allowlist as the HTTP layer. This previously accepted every
+      // origin because both branches of the check called back with true,
+      // which let any site open a realtime connection to the store.
       origin: (origin, callback) => {
-        if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === config.frontendUrl) {
-          callback(null, true);
-        } else {
-          callback(null, true);
-        }
+        callback(null, isAllowedOrigin(origin));
       },
       methods: ['GET', 'POST'],
       credentials: true,
