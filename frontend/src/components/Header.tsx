@@ -15,9 +15,7 @@ import {
   Bell,
   LogOut,
   ChevronDown,
-  Percent,
   Compass,
-  Store,
   Grid,
   Tag
 } from 'lucide-react';
@@ -252,54 +250,7 @@ function HeaderContent() {
           </div>
         </div>
 
-        {/* ROW 2: Primary Navigation, switch display */}
-        <div className="hidden lg:block border-t border-neutral-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between text-sm font-medium tracking-wide">
-            
-            {/* Category Switch Tabs (Desktop context selector) */}
-            <div className="flex gap-4">
-              <button
-                onClick={() => handleCategorySwitch('FASHION')}
-                className={clsx(
-                  "px-4 h-12 border-b-2 font-bold cursor-pointer transition-all duration-200",
-                  category === 'FASHION'
-                    ? "border-black text-black"
-                    : "border-transparent text-neutral-400 hover:text-black"
-                )}
-              >
-                FASHION
-              </button>
-              <button
-                onClick={() => handleCategorySwitch('CAKES_AND_BAKES')}
-                className={clsx(
-                  "px-4 h-12 border-b-2 font-bold cursor-pointer transition-all duration-200",
-                  category === 'CAKES_AND_BAKES'
-                    ? "border-emerald-800 text-emerald-800"
-                    : "border-transparent text-neutral-400 hover:text-emerald-800"
-                )}
-              >
-                CAKES & BAKES
-              </button>
-            </div>
-
-            {/* Middle Nav items depending on Category */}
-            <div className="flex gap-8 items-center text-neutral-600">
-              <Link href="/" className="hover:text-dark transition-colors">Home</Link>
-              <Link href={category === 'FASHION' ? '/fashion' : '/cakes-and-bakes'} className="hover:text-dark transition-colors">Shop All</Link>
-              <Link href="/cakes-and-bakes/custom-cake" className="hover:text-emerald-800 font-semibold text-emerald-800 transition-colors">Custom Cakes</Link>
-              <Link href="/offers" className="hover:text-dark flex items-center gap-1 transition-colors">
-                <Percent size={14} /> Offers
-              </Link>
-              <Link href="/account/orders" className="hover:text-dark transition-colors">Orders</Link>
-              {user?.role !== 'SELLER' && user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
-                <Link href="/become-seller" className="hover:text-brand flex items-center gap-1 font-semibold text-brand text-xs bg-brand-light px-3 py-1.5 transition-colors">
-                  <Store size={13} /> Become a Seller
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+        </header>
 
       {/* MOBILE DRAWER MENU */}
       {mobileMenuOpen && (
