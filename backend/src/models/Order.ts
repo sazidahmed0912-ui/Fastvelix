@@ -242,10 +242,8 @@ const orderSchema = new Schema<IOrder>(
 );
 
 orderSchema.index({ userId: 1, createdAt: -1 });
-orderSchema.index({ orderNumber: 1 }, { unique: true });
 orderSchema.index({ status: 1 });
 orderSchema.index({ 'items.sellerId': 1, status: 1 });
-orderSchema.index({ idempotencyKey: 1 }, { unique: true });
 orderSchema.index({ createdAt: -1 });
 
 orderSchema.plugin(mongoosePaginate);

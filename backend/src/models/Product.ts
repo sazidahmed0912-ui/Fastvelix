@@ -198,7 +198,6 @@ productSchema.index({
   shortDescription: 'text',
 });
 
-productSchema.index({ slug: 1 }, { unique: true });
 productSchema.index({ topLevelCategory: 1, status: 1 });
 productSchema.index({ sellerId: 1, status: 1 });
 productSchema.index({ categoryId: 1, status: 1 });

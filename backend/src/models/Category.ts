@@ -66,7 +66,6 @@ const categorySchema = new Schema<ICategory>(
   { timestamps: true }
 );
 
-categorySchema.index({ slug: 1 }, { unique: true });
 categorySchema.index({ topLevelCategory: 1, isActive: 1 });
 
 export const Category = mongoose.model<ICategory>('Category', categorySchema);

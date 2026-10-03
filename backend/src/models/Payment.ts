@@ -69,6 +69,5 @@ paymentSchema.index({ orderId: 1 });
 paymentSchema.index({ userId: 1 });
 paymentSchema.index({ razorpayOrderId: 1 });
 paymentSchema.index({ razorpayPaymentId: 1 });
-paymentSchema.index({ idempotencyKey: 1 }, { unique: true });
 
 export const Payment = mongoose.model<IPayment>('Payment', paymentSchema);

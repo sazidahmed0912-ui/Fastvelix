@@ -62,7 +62,6 @@ const homepageSectionSchema = new Schema<IHomepageSection>(
 );
 
 homepageSectionSchema.index({ topLevelCategory: 1, isActive: 1, sortOrder: 1 });
-homepageSectionSchema.index({ sectionKey: 1 }, { unique: true });
 
 export const HomepageSection = mongoose.model<IHomepageSection>(
   'HomepageSection',

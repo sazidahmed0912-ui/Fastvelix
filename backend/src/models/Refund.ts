@@ -70,6 +70,5 @@ const refundSchema = new Schema<IRefund>(
 refundSchema.index({ orderId: 1 });
 refundSchema.index({ userId: 1 });
 refundSchema.index({ status: 1 });
-refundSchema.index({ idempotencyKey: 1 }, { unique: true });
 
 export const Refund = mongoose.model<IRefund>('Refund', refundSchema);

@@ -169,7 +169,6 @@ const sellerApplicationSchema = new Schema<ISellerApplication>(
   { timestamps: true }
 );
 
-sellerSchema.index({ userId: 1 }, { unique: true });
 sellerSchema.index({ status: 1 });
 sellerApplicationSchema.index({ userId: 1 });
 sellerApplicationSchema.index({ status: 1 });

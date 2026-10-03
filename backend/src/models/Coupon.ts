@@ -104,7 +104,6 @@ const couponUsageSchema = new Schema<ICouponUsage>({
   usedAt: { type: Date, default: Date.now },
 });
 
-couponSchema.index({ code: 1 }, { unique: true });
 couponSchema.index({ endDate: 1, isActive: 1 });
 couponUsageSchema.index({ couponId: 1, userId: 1 });
 couponUsageSchema.index({ orderId: 1 });
