@@ -16,6 +16,15 @@ export const connectDB = async (): Promise<void> => {
       isConnected = true;
       console.log(`✅ MongoDB connected: ${conn.connection.host}`);
     } catch (primaryErr: any) {
+      // The local fallback only makes sense on a developer machine, where a
+      // stray local mongod is a reasonable safety net. In production there is
+      // no local mongod, so retrying would burn five extra seconds and print a
+      // misleading "fallback" warning before dying anyway. Rethrow instead so
+      // the log names the actual connection failure.
+      if (config.env === 'production') {
+        throw primaryErr;
+      }
+
       console.warn(`⚠️ Primary MongoDB connection failed (${primaryErr.message}). Attempting local MongoDB fallback (mongodb://127.0.0.1:27017/fastvelix)...`);
       const localUri = 'mongodb://127.0.0.1:27017/fastvelix';
       const conn = await mongoose.connect(localUri, {
