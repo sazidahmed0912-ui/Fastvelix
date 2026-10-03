@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useStore, TopLevelCategory } from '@/store/useStore';
 import {
@@ -16,7 +17,15 @@ import {
   ChevronDown,
   Compass,
   Grid,
-  Tag
+  Tag,
+  MoreVertical,
+  ArrowLeft,
+  LayoutGrid,
+  Sparkles,
+  Truck,
+  Store,
+  HelpCircle,
+  ChevronRight
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { api } from '@/utils/api';
@@ -42,6 +51,9 @@ function HeaderContent() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,15 +88,46 @@ function HeaderContent() {
 
   const totalCartItems = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
+  const isCakes = category === 'CAKES_AND_BAKES';
+  const shopHref = isCakes ? '/cakes-and-bakes' : '/fashion';
+
+  // Mobile navigation destinations, shown in the three-dot sheet.
+  const mobileNavItems = [
+    { label: 'Shop All', href: shopHref, icon: LayoutGrid },
+    ...(isCakes
+      ? [{ label: 'Custom Cake Studio', href: '/cakes-and-bakes/custom-cake', icon: Sparkles }]
+      : []),
+    { label: 'Offers', href: '/offers', icon: Tag },
+    { label: 'Become a Seller', href: '/become-seller', icon: Store },
+    { label: 'Track Order', href: '/track-order', icon: Truck },
+    { label: 'Help Center', href: '/help-center', icon: HelpCircle },
+  ];
+
+  // Focus the field as soon as the expanded search bar mounts, so the customer
+  // can type straight away instead of tapping a second time.
+  useEffect(() => {
+    if (mobileSearchOpen) searchInputRef.current?.focus();
+  }, [mobileSearchOpen]);
+
+  // Stop the page behind the sheet from scrolling while it is open.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white border-b border-neutral-100 shadow-sm-custom">
         {/* ROW 1: Logo, Location, Search, Actions */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
-          {/* Logo + Location — desktop only. The mobile header is search-only. */}
+          {/* Logo + Location — desktop only */}
           <div className="hidden lg:flex items-center gap-4">
-            
+
             <Link href="/" className="flex items-center gap-1 font-bold text-2xl tracking-tight text-dark">
               FAST<span className="text-brand">VELIX</span>
             </Link>
@@ -100,19 +143,63 @@ function HeaderContent() {
             </button>
           </div>
 
-          {/* Product Search — the ONLY control in the mobile header bar */}
-          <form onSubmit={handleSearchSubmit} className="lg:hidden flex-1 relative">
-            <input
-              type="text"
-              placeholder={`Search ${category.toLowerCase()}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 px-4 pr-10 border border-neutral-200 focus:outline-none focus:border-dark text-sm transition-colors"
-            />
-            <button type="submit" className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center text-neutral-400 hover:text-dark cursor-pointer">
-              <Search size={18} />
-            </button>
-          </form>
+          {/* ─── MOBILE BAR: three-dot · logo · search ─── */}
+          <div className="lg:hidden w-full flex items-center gap-3">
+            {mobileSearchOpen ? (
+              /* Expanded search takes over the whole bar, with a way back out */
+              <>
+                <button
+                  type="button"
+                  onClick={() => setMobileSearchOpen(false)}
+                  aria-label="Close search"
+                  className="shrink-0 p-1 -ml-1 text-neutral-600 hover:text-dark cursor-pointer"
+                >
+                  <ArrowLeft size={22} />
+                </button>
+                <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder={`Search ${category.toLowerCase()}...`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-10 px-4 pr-10 border border-neutral-200 focus:outline-none focus:border-dark text-sm transition-colors"
+                  />
+                  <button type="submit" aria-label="Search" className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center text-neutral-400 hover:text-dark cursor-pointer">
+                    <Search size={18} />
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(true)}
+                  aria-label="Open menu"
+                  aria-expanded={mobileMenuOpen}
+                  className="shrink-0 p-1 -ml-1 text-neutral-600 hover:text-dark cursor-pointer"
+                >
+                  <MoreVertical size={22} />
+                </button>
+
+                <Link
+                  href="/"
+                  className="flex-1 text-center font-bold text-xl tracking-tight text-dark"
+                >
+                  FAST<span className="text-brand">VELIX</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileSearchOpen(true)}
+                  aria-label="Search"
+                  className="shrink-0 p-1 -mr-1 text-neutral-600 hover:text-dark cursor-pointer"
+                >
+                  <Search size={22} />
+                </button>
+              </>
+            )}
+          </div>
 
           {/* Large Product Search (Desktop) */}
           <form onSubmit={handleSearchSubmit} className="hidden lg:flex flex-1 max-w-lg relative">
@@ -272,6 +359,163 @@ function HeaderContent() {
           </div>
         </div>
       )}
+
+      {/* ─── MOBILE THREE-DOT NAVIGATION SHEET ─── */}
+      {mobileMenuOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-[99998] lg:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Main menu"
+              className="fixed inset-y-0 left-0 z-[99999] w-[82%] max-w-xs bg-white shadow-2xl flex flex-col lg:hidden animate-in slide-in-from-left duration-200"
+            >
+              {/* Sheet header */}
+              <div className="flex items-center justify-between px-4 h-16 border-b border-neutral-100 shrink-0">
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-bold text-xl tracking-tight text-dark"
+                >
+                  FAST<span className="text-brand">VELIX</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close menu"
+                  className="p-1 text-neutral-400 hover:text-dark cursor-pointer"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              {/* Account summary */}
+              <div className="px-4 py-3 border-b border-neutral-100 shrink-0">
+                {user ? (
+                  <>
+                    <p className="text-xs text-neutral-400">Logged in as</p>
+                    <p className="text-sm font-semibold text-dark truncate">{user.email}</p>
+                    <div className="flex flex-wrap gap-3 mt-2">
+                      <Link
+                        href="/account"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-bold text-brand"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        href="/account/orders"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-bold text-neutral-600"
+                      >
+                        Orders
+                      </Link>
+                      <Link
+                        href="/account/wishlist"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-xs font-bold text-neutral-600"
+                      >
+                        Wishlist
+                      </Link>
+                      {user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? (
+                        <Link
+                          href="/admin"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="text-xs font-bold text-brand"
+                        >
+                          Admin Panel
+                        </Link>
+                      ) : null}
+                      {user.role === 'SELLER' ? (
+                        <Link
+                          href="/seller"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="text-xs font-bold text-brand"
+                        >
+                          Seller Panel
+                        </Link>
+                      ) : null}
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-sm font-semibold text-dark"
+                  >
+                    <UserIcon size={18} className="text-brand" />
+                    Login / Register
+                  </Link>
+                )}
+              </div>
+
+              {/* Navigation links */}
+              <nav className="flex-1 overflow-y-auto py-1">
+                {mobileNavItems.map((item) => {
+                  const IconComp = item.icon;
+                  const active =
+                    item.href === shopHref &&
+                    (pathname.includes('/fashion') || pathname.includes('/cakes-and-bakes'));
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={clsx(
+                        'flex items-center gap-3 px-4 py-3 text-sm font-medium border-b border-neutral-50 transition-colors',
+                        active ? 'text-brand bg-brand-light/20' : 'text-neutral-700 hover:bg-neutral-50'
+                      )}
+                    >
+                      <IconComp size={18} className={active ? 'text-brand' : 'text-neutral-400'} />
+                      <span className="flex-1">{item.label}</span>
+                      <ChevronRight size={14} className="text-neutral-300" />
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Location + sign out */}
+              <div className="border-t border-neutral-100 p-3 shrink-0 space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowLocationModal(true);
+                  }}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-xs text-neutral-600 hover:text-dark cursor-pointer"
+                >
+                  <MapPin size={16} className="text-brand" />
+                  <span>
+                    Deliver to: <span className="font-semibold text-dark">{location}</span>
+                  </span>
+                </button>
+
+                {user && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                      router.push('/');
+                    }}
+                    className="w-full flex items-center gap-3 px-2 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 cursor-pointer"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                )}
+              </div>
+            </div>
+          </>,
+          document.body
+        )}
 
       {/* MOBILE BOTTOM NAVIGATION BAR */}
       <nav className="fixed bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-t border-neutral-200 flex lg:hidden items-center justify-around z-40 shadow-lg">

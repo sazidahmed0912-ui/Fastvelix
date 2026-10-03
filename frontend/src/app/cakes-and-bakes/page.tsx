@@ -7,22 +7,23 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CategorySwitch from '@/components/CategorySwitch';
 import ProductGrid from '@/components/ProductGrid';
+import ShopByCategory, { ShopCategory } from '@/components/ShopByCategory';
 import { api } from '@/utils/api';
-import { Sparkles, Cake, Gift, Heart, ArrowRight, Award, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 export default function CakesAndBakesLandingPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const bakeryCategories = [
-    { name: 'Birthday Cakes', slug: 'cakes', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300' },
-    { name: 'Designer Cakes', slug: 'designer-cakes', image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=300' },
-    { name: 'Photo Cakes', slug: 'photo-cakes', image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300' },
-    { name: 'Wedding Cakes', slug: 'wedding-cakes', image: 'https://images.unsplash.com/photo-1519869325930-281384150729?w=300' },
-    { name: 'Cupcakes', slug: 'cupcakes', image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=300' },
-    { name: 'Pastries & Breads', slug: 'pastries', image: 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=300' },
-    { name: 'Cookies & Desserts', slug: 'cookies-desserts', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=300' },
-    { name: 'Celebration Gifts', slug: 'gifts', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300' },
+  // Identical list, images and ordering to the homepage, so the two pages
+  // cannot drift apart again.
+  const bakeryCategories: ShopCategory[] = [
+    { name: 'Birthday Cakes', href: '/cakes-and-bakes/cakes', image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200&h=200&fit=crop&q=60' },
+    { name: 'Designer Cakes', href: '/cakes-and-bakes/designer-cakes', image: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=200&h=200&fit=crop&q=60' },
+    { name: 'Photo Cakes', href: '/cakes-and-bakes/photo-cakes', image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=200&h=200&fit=crop&q=60' },
+    { name: 'Cupcakes', href: '/cakes-and-bakes/cupcakes', image: 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?w=200&h=200&fit=crop&q=60' },
+    { name: 'Pastries & Breads', href: '/cakes-and-bakes/pastries', image: 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&q=60' },
+    { name: 'Cookies & Desserts', href: '/cakes-and-bakes/cookies-desserts', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=200&h=200&fit=crop&q=60' },
   ];
 
   useEffect(() => {
@@ -46,80 +47,19 @@ export default function CakesAndBakesLandingPage() {
       <Header />
       <CategorySwitch />
 
-      {/* ─── 1. COMPACT BAKERY HERO ─── */}
+      {/* ─── 1. HERO BANNER — image only ─── */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4">
-        <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-xl overflow-hidden bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 flex items-center shadow-sm">
+        <div className="relative w-full h-[160px] sm:h-[220px] md:h-[280px] lg:h-[320px] rounded-xl overflow-hidden bg-amber-950 shadow-sm">
           <img
             src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1400"
-            alt="Cakes & Bakes Hero"
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-50"
+            alt="Cakes & Bakes Banner"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-950/90 via-stone-900/80 to-transparent" />
-          
-          <div className="relative z-10 px-6 sm:px-10 lg:px-12 text-white max-w-xl space-y-2 sm:space-y-3">
-            <span className="inline-flex items-center gap-1 bg-amber-400 text-stone-950 text-[9px] sm:text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-widest rounded-full">
-              <Sparkles size={11} /> Artisanal Cake Studio
-            </span>
-            <h1 className="text-xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-white leading-tight">
-              Made for Moments <br className="hidden sm:inline" />
-              <span className="text-amber-200 italic font-normal">Worth Celebrating</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-stone-200 font-medium line-clamp-2">
-              Custom cakes, fresh bakes and beautiful treats for every occasion.
-            </p>
-            <div className="pt-1 flex items-center gap-3">
-              <Link
-                href="/cakes-and-bakes/cakes"
-                className="inline-flex items-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest px-4 sm:px-6 py-2 transition-colors rounded-full shadow-sm"
-              >
-                <span>Explore Cakes & Bakes</span>
-                <ArrowRight size={12} />
-              </Link>
-              <Link
-                href="/cakes-and-bakes/custom-cake"
-                className="inline-flex items-center gap-1 text-amber-200 hover:text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider underline"
-              >
-                Custom Cake Studio
-              </Link>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ─── 2. BAKERY CATEGORIES ─── */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-xs font-extrabold uppercase tracking-widest text-neutral-400">Bakery Collections</h2>
-          <Link href="/cakes-and-bakes/cakes" className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 hover:text-black flex items-center gap-0.5">
-            <span>View All</span>
-            <ChevronRight size={12} />
-          </Link>
-        </div>
-
-        <div className="-mx-3 px-3 sm:mx-0 sm:px-0">
-          <div className="flex flex-nowrap items-stretch gap-2 overflow-x-auto no-scrollbar md:justify-between md:gap-2.5 md:overflow-visible">
-            {bakeryCategories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/cakes-and-bakes/${cat.slug}`}
-                className="group flex w-14 sm:w-16 shrink-0 flex-col items-center gap-1 rounded-lg bg-amber-50/40 p-1.5 border border-amber-900/10 hover:bg-amber-50/90 hover:border-amber-700/30 transition-all duration-200 shadow-xs cursor-pointer"
-              >
-                <div className="relative w-full aspect-square rounded-md overflow-hidden bg-amber-100/50 border border-amber-200/60">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <span className="w-full text-center text-[9px] sm:text-[10px] font-bold leading-tight text-stone-800 group-hover:text-emerald-800 line-clamp-2">
-                  {cat.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ─── 2. BAKERY COLLECTIONS ─── */}
+      <ShopByCategory categories={bakeryCategories} title="Bakery Collection" />
 
       {/* ─── 3. CUSTOM CAKE DESIGNER SPOTLIGHT ─── */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
