@@ -5,11 +5,12 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
-import { config } from './config';
+import { config, isAllowedOrigin } from './config';
 import { connectDB } from './config/db';
 import { initSocket } from './config/socket';
 import { errorHandler, notFound } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimit';
+import { AppError } from './utils/AppError';
 
 import path from 'path';
 
@@ -53,13 +54,17 @@ app.use(helmet({
   },
 }));
 
+// Origins are explicitly allowlisted. Because the session cookie is now
+// SameSite=None it travels on cross site requests, so this allowlist is also
+// what stops another website from riding a logged in user's session. A blocked
+// origin is rejected outright instead of silently losing the CORS headers,
+// which keeps the request from ever reaching the routes below.
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl) or matching dev ports
-    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === config.frontendUrl) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
-      callback(null, true); // Dev flexible fallback
+      callback(new AppError(`Origin not allowed by CORS policy: ${origin}`, 403, 'CORS_BLOCKED'));
     }
   },
   credentials: true,
