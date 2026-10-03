@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { noIndex } from '@/lib/seo';
 import AccountShell from '@/components/AccountShell';
+import RequireAuth from '@/components/RequireAuth';
 
 export const metadata: Metadata = noIndex();
 
@@ -9,5 +10,9 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AccountShell>{children}</AccountShell>;
+  return (
+    <RequireAuth>
+      <AccountShell>{children}</AccountShell>
+    </RequireAuth>
+  );
 }
