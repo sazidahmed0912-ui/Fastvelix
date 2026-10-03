@@ -19,7 +19,17 @@ if (config.env === 'production') {
 }
 
 const seed = async () => {
-  await connectDB();
+  // Name the target before touching it, and refuse to fall back to a local
+  // mongod. connectDB's dev fallback is a sensible safety net for the API
+  // server, but the very next block empties a dozen collections, so quietly
+  // retargeting at 127.0.0.1 would wipe the wrong database and still print a
+  // success message. If the credentials are wrong we want the connection error,
+  // not a green tick.
+  const configuredHost = (config.db.uri.match(/@([^/:?]+)/) || [])[1] || '(unparseable)';
+  console.log(`🎯 Target database host: ${configuredHost}`);
+  console.log('   (the collections below are emptied before reseeding)');
+
+  await connectDB({ allowLocalFallback: false });
   console.log('🌱 Starting database seed for FastVelix Fashion & Cakes & Bakes...');
 
   // ─── Clear existing seed data ────────────────────────────────────────────
