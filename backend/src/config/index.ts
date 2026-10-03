@@ -113,6 +113,82 @@ export const isAllowedOrigin = (origin?: string): boolean => {
   });
 };
 
+// ─── Database URI validation ────────────────────────────────────────────────
+// A malformed MONGODB_URI otherwise surfaces from deep inside the driver as
+// MongoParseError: "mongodb+srv URI cannot have port number", which says
+// nothing about which part of the URI is at fault. Parse the shape here so the
+// boot fails with a message that names the actual problem.
+(() => {
+  const uri = config.db.uri;
+  const problems: string[] = [];
+
+  if (!/^mongodb(\+srv)?:\/\//.test(uri)) {
+    problems.push(`it does not start with mongodb:// or mongodb+srv:// (it starts with "${uri.slice(0, 14)}")`);
+  } else {
+    const isSrv = uri.startsWith('mongodb+srv://');
+    const rest = uri.replace(/^mongodb(\+srv)?:\/\//, '');
+
+    // Credentials end at the last @, since an unescaped @ inside a password
+    // would otherwise be mistaken for the end of the credentials.
+    const at = rest.lastIndexOf('@');
+    const userinfo = at >= 0 ? rest.slice(0, at) : '';
+    const hostAndPath = (at >= 0 ? rest.slice(at + 1) : rest).split('?')[0];
+    const host = hostAndPath.split('/')[0];
+    const hostname = host.split(':')[0];
+
+    // A bare localhost URI with no credentials is perfectly valid, so the
+    // credential and hostname checks below are skipped for it.
+    const isLocal = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(hostname);
+
+    if (isSrv && host.includes(':')) {
+      problems.push(
+        `a mongodb+srv URI must not carry a port, but the host reads "${host}". ` +
+        `Delete everything from that ":" onwards.`
+      );
+    }
+    if (!isLocal && !hostname.includes('.') && !hostname.startsWith('[')) {
+      problems.push(`the host reads "${host}", which does not look like a cluster hostname`);
+    }
+
+    if (at >= 0) {
+      const colon = userinfo.indexOf(':');
+      const user = colon >= 0 ? userinfo.slice(0, colon) : userinfo;
+      const password = colon >= 0 ? userinfo.slice(colon + 1) : '';
+
+      if (!user) problems.push('the username before the ":" is empty');
+      if (!password) problems.push('the password between ":" and "@" is empty');
+      if (password.includes('@')) {
+        problems.push('the password contains an unescaped "@", which truncates the credentials');
+      }
+      // Only the first colon separates user from password, so a colon here is
+      // part of the password and has to be escaped as %3A.
+      if (/[:/@\\?#[\]]/.test(password)) {
+        problems.push(
+          'the password contains an unescaped ":" (or / \\ ? # [ ]), all of which have to be ' +
+          'percent-encoded inside a URI, for example : becomes %3A'
+        );
+      }
+    } else if (!isLocal) {
+      problems.push('there are no credentials, expected "<user>:<password>@host"');
+    }
+
+    if (!hostAndPath.split('/')[1]) {
+      problems.push('the database name is missing, expected a "/" followed by the database name');
+    }
+  }
+
+  if (problems.length) {
+    throw new Error(
+      'MONGODB_URI is malformed:\n' +
+        problems.map((p) => `  - ${p}`).join('\n') +
+        '\n\nExpected shape:\n' +
+        '  mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority\n' +
+        '\nIf the password contains @ : / \\ ? # [ ] or %, either percent-encode it\n' +
+        '(for example @ becomes %40) or set a password made of letters and digits only.'
+    );
+  }
+})();
+
 // ─── Production secret guard ────────────────────────────────────────────────
 // The fallbacks above are development conveniences. Booting in production with
 // one still in place means signing sessions with a value that is published in
