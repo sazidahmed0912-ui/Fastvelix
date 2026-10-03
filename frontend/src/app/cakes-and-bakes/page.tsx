@@ -96,25 +96,28 @@ export default function CakesAndBakesLandingPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-2.5 sm:gap-3">
-          {bakeryCategories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/cakes-and-bakes/${cat.slug}`}
-              className="group flex flex-col items-center gap-1.5 p-1.5 sm:p-2 rounded-lg bg-amber-50/40 hover:bg-amber-50/90 border border-amber-900/10 hover:border-amber-700/30 transition-all duration-200 shadow-xs cursor-pointer"
-            >
-              <div className="relative w-full aspect-square rounded-md overflow-hidden bg-amber-100/50 shadow-xs border border-amber-200/60">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <span className="text-[11px] sm:text-xs font-bold text-stone-800 group-hover:text-emerald-800 text-center truncate w-full px-0.5">
-                {cat.name}
-              </span>
-            </Link>
-          ))}
+        <div className="-mx-3 px-3 sm:mx-0 sm:px-0">
+          <div className="flex flex-nowrap items-stretch gap-2 overflow-x-auto no-scrollbar md:justify-between md:gap-2.5 md:overflow-visible">
+            {bakeryCategories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/cakes-and-bakes/${cat.slug}`}
+                className="group flex w-14 sm:w-16 shrink-0 flex-col items-center gap-1 rounded-lg bg-amber-50/40 p-1.5 border border-amber-900/10 hover:bg-amber-50/90 hover:border-amber-700/30 transition-all duration-200 shadow-xs cursor-pointer"
+              >
+                <div className="relative w-full aspect-square rounded-md overflow-hidden bg-amber-100/50 border border-amber-200/60">
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <span className="w-full text-center text-[9px] sm:text-[10px] font-bold leading-tight text-stone-800 group-hover:text-emerald-800 line-clamp-2">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
