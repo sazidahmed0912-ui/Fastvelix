@@ -1,0 +1,20 @@
+{
+  "name": "fastvelix",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FastVelix monorepo — Next.js storefront (frontend/) + Express API (backend/)",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "lint": "npm --prefix frontend run lint",
+    "backend:install": "npm --prefix backend install",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:build": "npm --prefix backend run build",
+    "backend:start": "npm --prefix backend run start",
+    "backend:seed": "npm --prefix backend run seed"
+  }
+}
