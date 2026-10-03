@@ -9,7 +9,6 @@ import {
   ShoppingCart,
   Heart,
   User as UserIcon,
-  Menu,
   X,
   MapPin,
   Bell,
@@ -39,7 +38,6 @@ function HeaderContent() {
   } = useStore();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, setLocation] = useState('Bengaluru, KA');
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -76,11 +74,6 @@ function HeaderContent() {
     }
   };
 
-  const handleCategorySwitch = (cat: TopLevelCategory) => {
-    setCategory(cat);
-    router.push(cat === 'FASHION' ? '/fashion' : '/cakes-and-bakes');
-  };
-
   const totalCartItems = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   return (
@@ -89,14 +82,8 @@ function HeaderContent() {
         {/* ROW 1: Logo, Location, Search, Actions */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
-          {/* Menu / Logo */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden text-dark p-1 cursor-pointer hover:bg-neutral-50"
-            >
-              <Menu size={24} />
-            </button>
+          {/* Logo + Location — desktop only. The mobile header is search-only. */}
+          <div className="hidden lg:flex items-center gap-4">
             
             <Link href="/" className="flex items-center gap-1 font-bold text-2xl tracking-tight text-dark">
               FAST<span className="text-brand">VELIX</span>
@@ -113,6 +100,20 @@ function HeaderContent() {
             </button>
           </div>
 
+          {/* Product Search — the ONLY control in the mobile header bar */}
+          <form onSubmit={handleSearchSubmit} className="lg:hidden flex-1 relative">
+            <input
+              type="text"
+              placeholder={`Search ${category.toLowerCase()}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 px-4 pr-10 border border-neutral-200 focus:outline-none focus:border-dark text-sm transition-colors"
+            />
+            <button type="submit" className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center text-neutral-400 hover:text-dark cursor-pointer">
+              <Search size={18} />
+            </button>
+          </form>
+
           {/* Large Product Search (Desktop) */}
           <form onSubmit={handleSearchSubmit} className="hidden lg:flex flex-1 max-w-lg relative">
             <input
@@ -127,16 +128,8 @@ function HeaderContent() {
             </button>
           </form>
 
-          {/* Quick Actions */}
-          <div className="flex items-center gap-4 sm:gap-6" ref={dropdownRef}>
-            
-            {/* Search (Mobile/Tablet View) */}
-            <button
-              onClick={() => router.push('/search')}
-              className="lg:hidden text-neutral-600 hover:text-dark cursor-pointer"
-            >
-              <Search size={22} />
-            </button>
+          {/* Quick Actions — desktop only */}
+          <div className="hidden lg:flex items-center gap-4 sm:gap-6" ref={dropdownRef}>
 
             {/* Notification Bell */}
             {user && (
@@ -251,68 +244,6 @@ function HeaderContent() {
         </div>
 
         </header>
-
-      {/* MOBILE DRAWER MENU */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          {/* Overlay */}
-          <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-black/40" />
-          
-          <div className="relative flex w-full max-w-xs flex-col bg-white py-4 shadow-xl">
-            <div className="flex items-center justify-between px-4 pb-4 border-b border-neutral-100">
-              <span className="font-bold text-lg">FASTVELIX</span>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-neutral-500 p-1 cursor-pointer hover:bg-neutral-50"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Location Selector (Mobile) */}
-            <div className="px-4 py-3 bg-neutral-50 border-b border-neutral-100">
-              <button
-                onClick={() => {
-                  setShowLocationModal(true);
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-2 text-xs text-neutral-600 cursor-pointer w-full text-left"
-              >
-                <MapPin size={16} className="text-brand" />
-                <span>Deliver to: <span className="font-bold text-dark">{location}</span></span>
-              </button>
-            </div>
-
-            {/* Context Categories Selector */}
-            <div className="grid grid-cols-2 text-center border-b border-neutral-100 text-sm font-bold">
-              <button
-                onClick={() => {
-                  handleCategorySwitch('FASHION');
-                  setMobileMenuOpen(false);
-                }}
-                className={clsx(
-                  "py-3 border-b-2",
-                  category === 'FASHION' ? "border-dark text-dark" : "border-transparent text-neutral-400"
-                )}
-              >
-                FASHION
-              </button>
-              <button
-                onClick={() => {
-                  handleCategorySwitch('CAKES_AND_BAKES');
-                  setMobileMenuOpen(false);
-                }}
-                className={clsx(
-                  "py-3 border-b-2",
-                  category === 'CAKES_AND_BAKES' ? "border-emerald-800 text-emerald-800" : "border-transparent text-neutral-400"
-                )}
-              >
-                CAKES & BAKES
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* LOCATION PINCODE SELECTOR MODAL */}
       {showLocationModal && (

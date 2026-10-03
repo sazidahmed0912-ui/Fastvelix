@@ -111,7 +111,7 @@ const CategoryAvatar: React.FC<{ category: ShopCategory }> = ({ category }) => {
 
 const CategoryIconItem: React.FC<CategoryItemProps> = ({ category, size = 'mobile' }) => {
   const isDesktop = size === 'desktop';
-  const containerSize = isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-12 h-12';
+  const containerSize = isDesktop ? 'w-14 h-14 md:w-16 md:h-16' : 'w-full aspect-square';
 
   return (
     <Link
@@ -168,7 +168,7 @@ const MobileCategoryCarousel: React.FC<{
         {pages.map((page, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full flex-shrink-0 snap-center grid gap-2 px-1 py-1 items-start text-center"
+            className="w-full flex-shrink-0 snap-center grid gap-1.5 px-0.5 py-1 items-start text-center"
             style={{ gridTemplateColumns: `repeat(${perPage}, minmax(0, 1fr))` }}
           >
             {page.map((cat) => (
