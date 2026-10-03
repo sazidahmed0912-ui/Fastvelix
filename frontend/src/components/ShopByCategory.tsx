@@ -19,7 +19,7 @@
  * ══════════════════════════════════════════════════════════════
  */
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { clsx } from 'clsx';
 
@@ -61,17 +61,16 @@ interface CategoryItemProps {
 const CategoryAvatar: React.FC<{ category: ShopCategory }> = ({ category }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  // Always start false on server; check cache client-side in an effect.
+  const [preloaded, setPreloaded] = useState(false);
 
-  // If the image is already in the browser cache the `load` event can fire
-  // before React attaches the handler, leaving the shimmer stuck on screen.
-  // Seed the state once, from the DOM, to cover that case.
-  const [preloaded] = useState(() => {
-    if (typeof window === 'undefined') return false;
+  useEffect(() => {
+    if (!category.image) return;
     const cached = document.querySelector<HTMLImageElement>(
       `img[src="${CSS.escape(category.image)}"]`
     );
-    return Boolean(cached?.complete);
-  });
+    if (cached?.complete) setPreloaded(true);
+  }, [category.image]);
 
   const loaded = imageLoaded || preloaded;
 

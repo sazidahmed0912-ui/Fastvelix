@@ -11,6 +11,7 @@ import { initSocket } from './config/socket';
 import { errorHandler, notFound } from './middleware/errorHandler';
 import { apiLimiter, readLimiter } from './middleware/rateLimit';
 import { AppError } from './utils/AppError';
+import { initDefaultUsers } from './utils/initDefaultUsers';
 
 import path from 'path';
 
@@ -233,6 +234,7 @@ app.use(errorHandler);
 // ─── Start Server ────────────────────────────────────────────────────────────
 const startServer = async () => {
   await connectDB();
+  await initDefaultUsers();
 
   server.listen(config.port, () => {
     console.log(`

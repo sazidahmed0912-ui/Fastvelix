@@ -66,6 +66,15 @@ export default function RequireAuth({
   useEffect(() => {
     let cancelled = false;
 
+    // ── Fast path: if the store already has a user (e.g., just logged in),
+    //    skip the API round-trip and resolve immediately. This prevents the
+    //    "loading spinner → redirect to login" loop right after login.
+    const existingUser = useStore.getState().user;
+    if (existingUser && attempt === 0) {
+      setVerdict(existingUser);
+      return;
+    }
+
     setVerdict(undefined);
     setSlow(false);
 
