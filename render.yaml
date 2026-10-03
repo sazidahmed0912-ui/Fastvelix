@@ -1,0 +1,81 @@
+# ==========================================================================
+# FastVelix API — Render Blueprint
+#
+# Deploy: Render dashboard > New > Blueprint > pick this repo.
+# Render reads this file, creates the service, and prompts you for every
+# secret marked "sync: false". Values marked generateValue are created
+# automatically as 256-bit random strings.
+#
+# The frontend deploys separately to Vercel with Root Directory "frontend".
+# The two end up on different domains, which is exactly why the backend
+# cookie defaults to SameSite=None and why CORS_ORIGINS below has to list
+# the Vercel domain explicitly.
+#
+# Deploy order that avoids a rebuild:
+#   1. Render first  -> get the *.onrender.com URL
+#   2. Vercel second -> point NEXT_PUBLIC_API_URL at that URL
+#   3. Back to Render, fill in FRONTEND_URL / CORS_ORIGINS, then Restart.
+#      Backend env vars are read at runtime, so this needs no rebuild.
+# Doing it the other way round would force a Vercel rebuild instead,
+# because NEXT_PUBLIC_* values are inlined at build time.
+# ==========================================================================
+
+services:
+  - type: web
+    name: fastvelix-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: backend
+
+    # Render exports NODE_ENV=production before the build runs, which makes
+    # npm skip devDependencies. typescript and the @types packages live
+    # there, so without --include=dev the build dies on "tsc: not found".
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+    autoDeployTrigger: commit
+
+    # Monorepo: only rebuild the API when backend files change, so frontend
+    # commits do not needlessly restart it.
+    buildFilter:
+      paths:
+        - backend/**
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # ── Secrets: Render prompts for these ──────────────────────────
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+
+      # ── Fill these in after the frontend is on Vercel ──────────────
+      # FRONTEND_URL is the live site, e.g. https://fastvelix.vercel.app
+      # CORS_ORIGINS additionally allows every Vercel preview deployment.
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+      # ── Optional ───────────────────────────────────────────────────
+      # Not listed here because each missing one becomes another prompt
+      # during creation. Add whichever you need to this list and redeploy,
+      # or just set them in the dashboard under Environment.
+      #
+      #   CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET
+      #   RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET
+      #   SMTP_HOST / SMTP_PORT / SMTP_SECURE / SMTP_USER / SMTP_PASS
+      #   EMAIL_FROM / ADMIN_EMAIL / ADMIN_PASSWORD
+      #
+      # Full list with descriptions: backend/.env.example
+
+      # PORT is deliberately absent. Render injects it automatically and
+      # the server already reads process.env.PORT (see backend/src/config).
