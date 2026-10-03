@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { api } from '@/utils/api';
+import { API_BASE } from '@/lib/env';
 import {
   LayoutDashboard, Package, ShoppingBag, ArrowLeft,
   Upload, Camera, Save, Building2, MapPin, Landmark, User
@@ -103,7 +104,7 @@ export default function SellerProfilePage() {
       if (logoFile) formData.append('logo', logoFile);
       if (bannerFile) formData.append('banner', bannerFile);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/seller/profile`, {
+      const res = await fetch(`${API_BASE}/seller/profile`, {
         method: 'PUT',
         credentials: 'include',
         body: formData,

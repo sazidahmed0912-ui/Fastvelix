@@ -1,6 +1,10 @@
 import { io, Socket } from 'socket.io-client';
+import { API_ORIGIN } from './env';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// The bare origin, not the /api value. socket.io resolves its handshake
+// relative to whatever it is given, so passing ".../api" made it request
+// /api/socket.io/ and every realtime connection returned 404 in production.
+const BACKEND_URL = API_ORIGIN;
 
 let socket: Socket | null = null;
 

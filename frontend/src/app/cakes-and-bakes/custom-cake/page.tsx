@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import CategorySwitch from '@/components/CategorySwitch';
 import { useStore } from '@/store/useStore';
 import { api } from '@/utils/api';
+import { API_BASE, uploadUrl } from '@/lib/env';
 import { useRouter } from 'next/navigation';
 import {
   Cake,
@@ -144,7 +145,7 @@ export default function CustomCakeDesignerPage() {
       const formData = new FormData();
       formData.append('photo', file);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/custom-cakes/upload`, {
+      const res = await fetch(`${API_BASE}/custom-cakes/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -418,7 +419,7 @@ export default function CustomCakeDesignerPage() {
                 <div className="border-2 border-dashed border-stone-300 p-6 rounded-lg text-center space-y-4 bg-stone-50">
                   {photoUrl ? (
                     <div className="space-y-2">
-                      <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${photoUrl}`} alt="Reference Upload" className="h-40 mx-auto object-cover rounded-lg shadow-sm" />
+                      <img src={uploadUrl(photoUrl)} alt="Reference Upload" className="h-40 mx-auto object-cover rounded-lg shadow-sm" />
                       <p className="text-xs text-emerald-700 font-bold">Photo Uploaded Successfully! (+₹200)</p>
                       <button onClick={() => setPhotoUrl('')} className="text-xs text-rose-600 underline">Remove Photo</button>
                     </div>

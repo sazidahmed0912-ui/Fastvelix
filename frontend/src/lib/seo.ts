@@ -1,9 +1,12 @@
 import { cache } from 'react';
 import type { Metadata } from 'next';
+import { API_BASE, APP_NAME, SITE_URL } from './env';
 
-export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'FastVelix';
+// Kept as aliases because many routes import these names from here. The values
+// now come from lib/env so there is a single place that knows the backend URL.
+export const BASE_URL = SITE_URL;
+export const API_URL = API_BASE;
+export { APP_NAME };
 
 export const APP_DESCRIPTION =
   'Design custom cakes, discover fresh bakes and order beautiful treats for every celebration with FastVelix. ' +

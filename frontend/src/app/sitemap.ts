@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { API_BASE, SITE_URL } from '@/lib/env';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const BASE_URL = SITE_URL;
+const API_URL = API_BASE;
 
 const STATIC_ROUTES: {
   path: string;
